@@ -1,0 +1,20 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "codLab bknd",
+  "homepage": "https://github.com/Mugilan205/CodLAb#readme",
+  "bugs": {
+    "url": "https://github.com/Mugilan205/CodLAb/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mugilan205/CodLAb.git"
+  },
+  "license": "ISC",
+  "author": "Mugilan",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
