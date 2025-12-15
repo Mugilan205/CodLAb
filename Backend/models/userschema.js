@@ -11,14 +11,14 @@ const userSchema = new mongoose.Schema(
     },
     email: {
       type: String,
-      required: true,
-      unique: true,
+      required: [true, "email must be provided "],
+      unique: [true, " must be Unique "],
       lowercase: true,
     },
     password: {
       type: String,
-      required: true,
-      minlength: 6,
+      required: [true, "password must be provided "],
+      minlength: [6, "min Length Not reached "],
       select: false,
     },
 
