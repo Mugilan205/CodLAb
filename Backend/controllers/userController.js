@@ -11,9 +11,7 @@ import { generateOtp, hashOtp, saveOtpToUser, verifyOtp  } from "./otpController
 export const register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
-
     const hashed = await hashPassword(password);
-
     const user = await User.create({
       name,
       email,
@@ -60,12 +58,14 @@ export const sendVerificationCode = async (req, res)=>{
     const hashedotp = await hashOtp(otp);
     try {
       const name = user.name;
-      transporter.sendMail(mailOptions({ email, name , otp })); 
+      const info = await transporter.sendMail(mailOptions({ email, name , otp })); 
       // console.log(process.env.NODE_EMAIL);
       await saveOtpToUser(user, hashedotp).catch((err) => {
         console.log(err.message);
       });
-       res.status(200).json({ message: "Email Sent" });
+      if((await info).accepted[0] === email)
+        res.status(200).json({ message: "email sent" });
+      else res.status(400).json({ message: info.message });
     }
     catch (err) {
       console.log(err.message);
