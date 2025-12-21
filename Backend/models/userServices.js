@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import jwt from "jsonwebtoken" 
 
 /* 🔹 Hash password before saving */
 export const hashPassword = async (password) => {
@@ -29,6 +29,10 @@ export const storeCookie = (token, res) => {
     token, 
     message:"logged Successfully..ck"
   });
-  
+}
+
+export const allusers = async (req, res) => {
+  const keyword = req.search.search;
+  console.log( )
 }
 

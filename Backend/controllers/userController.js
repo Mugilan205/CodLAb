@@ -35,13 +35,16 @@ export const login = async (req, res) => {
   if(!user) return res.status(404).json({ message: "User not found" });
     const match = await comparePassword(password, user.password);
     if (!match) return res.status(400).json({ message: "Invalid password" });
+
     const token = generateToken(user._id);
     storeCookie(token, res);
+    
     res.json({ message: "Login successful", token , user});
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
+
 // verification code
 export const sendVerificationCode = async (req, res)=>{
   const { email } = req.body;
