@@ -32,6 +32,7 @@ const chatSchema = mongoose.Schema(
     roomCode: {
       type: String,
       unique: true, // invite / join code
+      ref:"Room"
     },
   },
   {

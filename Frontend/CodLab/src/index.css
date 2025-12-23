@@ -2,13 +2,47 @@
 @tailwind components;
 @tailwind utilities;
 
+ 
+
 /* Required for Monaco editor */
 html, body, #root {
   height: 100%;
-  margin: 0;
+  margin-top: 20px ;
   padding: 0;
+  background-color: var(--bg-main);
 }
 
+
+/* ===============================
+   Global Color Tokens
+   =============================== */
+:root {
+  /* Backgrounds */
+  --bg-main: #000000;
+  --bg-card: rgba(0, 0, 0, 0.4);
+
+  /* Text */
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.75);
+
+  /* Brand */
+  --color-primary: #6366f1;   /* Indigo */
+  --color-accent: #38bdf8;    /* Cyan */
+
+  /* Orb / Glow */
+  --orb-purple: #8b5cf6;
+  --orb-blue: #38bdf8;
+
+  /* Borders */
+  --border-light: rgba(255, 255, 255, 0.2);
+}
+/* Fonts */
+.bbh-hegarty-regular {
+   font-family: "Bebas Neue", sans-serif;
+  font-weight: 1000;
+  font-style: normal;
+}
+/* ---------------------------------------------------------- */
 /* Custom scrollbar styles - Dark slate theme */
 ::-webkit-scrollbar {
   width: 8px;
@@ -46,4 +80,14 @@ html, body, #root {
 
 .monaco-editor .view-lines {
   pointer-events: auto !important;
+} 
+
+[data-theme="light"] {
+  --bg-main: #ffffff;
+  --text-primary: #000000;
+}
+
+[data-theme="dark"] {
+  --bg-main: #000000;
+  --text-primary: #ffffff;
 }
