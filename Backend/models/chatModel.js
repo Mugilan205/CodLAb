@@ -29,11 +29,12 @@ const chatSchema = mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-    roomCode: {
-      type: String,
-      unique: true, // invite / join code
-      ref:"Room"
-    },
+
+    // roomCode: {
+    //   type: String,
+    //   unique: true, // invite / join code
+    //   sparse: true,
+    // },
   },
   {
     timestamps: true,

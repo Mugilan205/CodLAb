@@ -66,30 +66,150 @@ export const fetchChats = async (req, res) => {
 };
 
 export const createGroupChats = async (req, res) => {
-  if (!req.body.users || !req.body.name) 
-    {
-      return res.status(400).send("Enter All Feilds");
+  try {
+    const { users, name } = req.body;
+
+    if (!users || !name) {
+      return res.status(400).send("Please provide all required fields");
+    }
+
+    if (users.length < 2) {
+      return res
+        .status(400)
+        .send("Group chat should contain at least 3 members");
+    }
+
+    // remove duplicates & add admin
+    const usersList = [...new Set([...users, req.user._id])];
+
+
+    const groupChat = await Chat.create({
+      chatName: name,
+      users: usersList,
+      isGroupChat: true,
+      groupAdmin: req.user._id,
+    });
+
+    const fullGroupChat = await Chat.findById(groupChat._id)
+      .populate("users", "-password")
+      .populate("groupAdmin", "-password");
+
+    res.status(200).json(fullGroupChat);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
   }
-    const users = req.user.users;
-    users.push(req.user);
-    if (users.size() < 2) {
-      return res.status(400).send("Group Should Contain more than 2 members");
+};
+
+export const renamegroup = async (req, res)=>{
+  const { groupId, newName } = req.body;
+  try {
+    const updated = await Chat.findOneAndUpdate(
+  { _id: groupId },
+  { $set: { name : newName } },
+  { new: true }
+    );
+    res.status(200).send("Updated sucessfully");
   }
-  const newGroup = {
-    chatName: req.user.name,
-    users: users,
-    isGroupChat: true,
-    groupAdmin :req.user, 
+  catch (err) {
+    return res.status(400).send(err.message);
   }
-  
-    try {
-      const groupchat = Chat.create(newGroup);
-      const fullGroupChat = Chat.findOne({ _id: newGroup._id })
-      .populate("users", "-password").populate("groupAdmin", "-password");
-      res.status(200).send(fullGroupChat);
+};
+export const renameGroup = async (req, res) => {
+  const { groupId, newName } = req.body;
+
+  if (!groupId || !newName) {
+    return res
+      .status(400)
+      .json({ message: "groupId and newName are required" });
   }
-    catch (err) {
-      res.status(400).send(err.message);
+
+  try {
+    const updatedChat = await Chat.findOneAndUpdate(
+      { _id: groupId },
+      { $set: { chatName: newName } }, 
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedChat) {
+      return res.status(404).json({ message: "Group not found" });
+    }
+
+    res.status(200).json(updatedChat);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
   }
-  
-}
+};
+
+export const removeFromGroup = async (req, res) => {
+  const { groupId, usersList } = req.body;
+
+  if (!groupId || !usersList || !Array.isArray(usersList)) {
+    return res.status(400).send("groupId and usersList are required");
+  }
+
+  try {
+    const chat = await Chat.findById(groupId);
+    if (!chat) return res.status(404).send("Group not found");
+
+    // Remove nulls in chat.users first
+    const safeUsers = chat.users.filter((u) => u != null);
+
+    // Convert usersList to strings and create a Set
+    const removeSet = new Set(usersList.map((id) => id.toString()));
+
+    // Filter users safely
+    chat.users = safeUsers.filter((u) => {
+      // u can be ObjectId or object
+      const id = typeof u === "object" ? u._id : u;
+      return !removeSet.has(id.toString());
+    });
+
+    await chat.save();
+
+    const updatedChat = await Chat.findById(groupId)
+      .populate("users", "-password")
+      .populate("groupAdmin", "-password");
+
+    res.status(200).json(updatedChat);
+  } catch (err) {
+    console.log(err);
+    res.status(400).send(err.message);
+  }
+};
+
+export const addToGroup = async (req, res) => {
+  const { groupId, usersList } = req.body;
+
+  if (!groupId || !usersList || !Array.isArray(usersList)) {
+    return res.status(400).send("groupId and usersList are required");
+  }
+
+  try {
+    const chat = await Chat.findById(groupId);
+    if (!chat) return res.status(404).send("Group not found");
+
+    const existingUsers = new Set(
+      chat.users
+        .filter((u) => u != null)
+        .map((u) => (typeof u === "object" ? u._id.toString() : u.toString()))
+    );
+
+    usersList.forEach((userId) => {
+      if (!existingUsers.has(userId.toString())) {
+        chat.users.push(userId);
+      }
+    });
+
+    await chat.save();
+
+    const updatedChat = await Chat.findById(groupId)
+      .populate("users", "-password")
+      .populate("groupAdmin", "-password");
+
+    res.status(200).json(updatedChat);
+  } catch (err) {
+    console.log(err);
+    res.status(400).send(err.message);
+  }
+};
+
